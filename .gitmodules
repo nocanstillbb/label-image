@@ -1,3 +1,6 @@
 [submodule "third-part/prism_all"]
 	path = third-part/prism_all
 	url = git@github.com:cpp-prism/prism_all.git
+[submodule "third-part/cool-retro-term"]
+	path = third-part/cool-retro-term
+	url = git@github.com:nocanstillbb/cool-retro-term.git

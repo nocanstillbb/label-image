@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/">
-        <file>views/main.qml</file>
+        <file>label-image/views/MainWindow.qml</file>
+        <file>label-image/views/MainContent.qml</file>
+        <file>label-image/views/MainTitlebar.qml</file>
+        <file>label-image/views/MainBody.qml</file>
+        <file>label-image/views/Projects_view.qml</file>
+        <file>label-image/views/editProjectDialog.qml</file>
+        <file>label-image/views/WorkView.qml</file>
+        <file>label-image/views/NoneProject.qml</file>
+        <file>label-image/views/LabelView.qml</file>
+        <file>label-image/views/TrainView.qml</file>
     </qresource>
 </RCC>

@@ -2,8 +2,10 @@
   "name": "label-image",
   "version": "1.0.0",
   "dependencies": [
+    "fmt",
     "sqlite3",
     "catch2"
+    "opencv4"
   ],
   "builtin-baseline": "c4467cb686f92671f0172aa8299a77d908175b4e",
   "overrides": [

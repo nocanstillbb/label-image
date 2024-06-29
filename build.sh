@@ -13,5 +13,5 @@ rm -rf build
 mkdir build 
 cd build 
 cmake .. $@
-cmake --build . --target label-image --config release
+cmake --build . --target label-image --config debug
 

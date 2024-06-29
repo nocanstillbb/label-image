@@ -77,3 +77,8 @@ Thumbs.db
 vcpkg_installed/
 CMakeLists.txt.user
 build
+
+
+
+third-part/build*
+bin/*
