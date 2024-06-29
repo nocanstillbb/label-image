@@ -1,0 +1,3 @@
+[submodule "third-part/prism_all"]
+	path = third-part/prism_all
+	url = git@github.com:cpp-prism/prism_all.git

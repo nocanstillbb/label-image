@@ -73,6 +73,6 @@ Thumbs.db
 
 
 #label-image
-third-part/
+#third-part/
 vcpkg_installed/
 CMakeLists.txt.user
