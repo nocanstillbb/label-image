@@ -100,6 +100,7 @@ int main(int argc, char* argv[])
             },
             Qt::QueuedConnection);
 
+    openProjectWin:
         //项目窗口
         sptr_engine->load(QString::fromStdString(prism::qt::modular::wrapper::startupUrl));
         int result = app.exec();
@@ -108,6 +109,7 @@ int main(int argc, char* argv[])
         {
             sptr_engine->load(QString::fromStdString(startupUrl2));
             result = app.exec();
+            goto openProjectWin;
         }
 
         return result;

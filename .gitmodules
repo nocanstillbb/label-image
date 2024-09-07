@@ -4,3 +4,6 @@
 [submodule "third-part/cool-retro-term"]
 	path = third-part/cool-retro-term
 	url = git@github.com:nocanstillbb/cool-retro-term.git
+[submodule "third-part/yolov8"]
+	path = third-part/yolov8
+	url = https://github.com/ultralytics/ultralytics.git

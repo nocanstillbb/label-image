@@ -82,7 +82,9 @@ void mainViewModel::activeProjectRvm(prismModelProxy<MLProject>* rvm)
             item->update();
         }
     }
-    rvm->instance()->actived ^= true;
+    if (!rvm)
+        return;
+    rvm->instance()->actived = true;
     if (rvm->instance()->actived)
     {
         //如果目录存在,加载训练用的图片

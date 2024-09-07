@@ -82,3 +82,4 @@ build
 
 third-part/build*
 bin/*
+venv_yolo8/

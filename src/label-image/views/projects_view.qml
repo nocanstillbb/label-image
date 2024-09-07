@@ -12,6 +12,9 @@ BorderlessWindow_mac {
     maximumWidth: 480
     title: "打开项目"
     color: "white"
+    Component.onCompleted: {
+        vm.activeProject = null
+    }
     ListView {
         id: lv_projects
         clip: true
@@ -64,8 +67,9 @@ BorderlessWindow_mac {
 
                     onDoubleClicked: {
 
-                        vm.openEditProjectWin(rvm)
-                        vm.saveProjects()
+                        vm.activeProjectRvm(rvm)
+                        projects_view_root.close()
+
                     }
                 }
                 RowLayout {
@@ -158,6 +162,22 @@ BorderlessWindow_mac {
         popupWidth: 200
 
         DesktopMenuItem {
+            text: qsTr("打开项目")
+            iconMipmap: true
+            iconColor: Style.black80
+            iconSource: CppUtility.transUrl(
+                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            onTriggered: {
+                if (!vm)
+                    return
+                var m = vm.appConf.get("projects")
+                var r = m.getRowData(lv_projects.currentIndex)
+                vm.activeProjectRvm(r)
+                projects_view_root.close()
+            }
+        }
+
+        DesktopMenuItem {
             text: qsTr("编辑")
             iconMipmap: true
             iconColor: Style.black80
@@ -183,21 +203,6 @@ BorderlessWindow_mac {
                     return
                 vm.removeProject(lv_projects.currentIndex)
                 vm.saveProjects()
-            }
-        }
-        DesktopMenuItem {
-            text: qsTr("打开项目")
-            iconMipmap: true
-            iconColor: Style.black80
-            iconSource: CppUtility.transUrl(
-                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
-            onTriggered: {
-                if (!vm)
-                    return
-                var m = vm.appConf.get("projects")
-                var r = m.getRowData(lv_projects.currentIndex)
-                vm.activeProjectRvm(r)
-                projects_view_root.close()
             }
         }
     }
