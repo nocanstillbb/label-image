@@ -7,28 +7,28 @@ import prismCpp 1.0
 import prism_qt_ui 1.0
 import "."
 
-Q1.SplitView {
-    orientation: Qt.Horizontal
-    //项目管理视图
-    Projects_view {
-        id: view_projects
-        width: 300
-        Layout.minimumWidth: 300
-    }
-    //项目视图
-    Item {
-        LiveLoader {
-            anchors.fill: parent
-            property var proj: vm? vm.activeProject :null
-            onProjChanged: {
-                if (proj) {
-                    source = CppUtility.transUrl(
-                                "qrc:/label-image/views/WorkView.qml")
-                    updateUrl()
-                } else {
-                    source = "qrc:/label-image/views/NoneProject.qml"
-                    updateUrl()
-                }
+//Q1.SplitView {
+//    orientation: Qt.Horizontal
+//    //项目管理视图
+//    ProjectPropertiesView {
+//        id: view_project
+//        width: 300
+//        Layout.minimumWidth: 300
+//    }
+//}
+//项目视图
+Item {
+    LiveLoader {
+        anchors.fill: parent
+        property var proj: vm? vm.activeProject :null
+        onProjChanged: {
+            if (proj) {
+                source = CppUtility.transUrl(
+                            "qrc:/label-image/views/WorkView.qml")
+                updateUrl()
+            } else {
+                source = "qrc:/label-image/views/NoneProject.qml"
+                updateUrl()
             }
         }
     }

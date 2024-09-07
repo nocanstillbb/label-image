@@ -3,15 +3,21 @@ import prismCpp 1.0
 import prism_qt_ui 1.0
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
+import QtQuick.Window 2.12
 
-Rectangle {
+BorderlessWindow_mac {
     id: projects_view_root
+    width: 480
+    height: 640
+    maximumWidth: 480
+    title: "打开项目"
     color: "white"
     ListView {
         id: lv_projects
         clip: true
         spacing: 0
         anchors.fill: parent
+        anchors.topMargin: 30
         model: vm ? vm.appConf.get("projects") : null
         boundsBehavior: ListView.StopAtBounds
         ScrollBar.vertical: ScrollBar {
@@ -67,29 +73,29 @@ Rectangle {
                     anchors.topMargin: 10
                     anchors.leftMargin: 10
                     anchors.rightMargin: 10
-                    Item {
-                        Layout.preferredWidth: 24
-                        Layout.fillHeight: true
-                        IconButton {
-                            width: 20
-                            height: 20
-                            anchors.centerIn: parent
-                            anchors.verticalCenterOffset: -7
+                    //Item {
+                    //    Layout.preferredWidth: 24
+                    //    Layout.fillHeight: true
+                    //    IconButton {
+                    //        width: 20
+                    //        height: 20
+                    //        anchors.centerIn: parent
+                    //        anchors.verticalCenterOffset: -7
 
-                            mipmap: true
-                            ToolTip.visible: ma.containsMouse
-                            ToolTip.text: "激活项目"
-                            ToolTip.delay: 300
-                            property var isactived: Bind.create(rvm, "actived")
-                            color: isactived ? Style.lightblue70 : Style.lightgray70
-                            hoveredColor: isactived ? Style.lightblue30 : Style.lightgray40
-                            icon: "qrc:/prism_qt_ui/svg/star.svg"
-                            onClicked: {
-                                vm.activeProjectRvm(rvm)
-                                lv_projects.currentIndex = index
-                            }
-                        }
-                    }
+                    //        mipmap: true
+                    //        ToolTip.visible: ma.containsMouse
+                    //        ToolTip.text: "激活项目"
+                    //        ToolTip.delay: 300
+                    //        property var isactived: Bind.create(rvm, "actived")
+                    //        color: isactived ? Style.lightblue70 : Style.lightgray70
+                    //        hoveredColor: isactived ? Style.lightblue30 : Style.lightgray40
+                    //        icon: "qrc:/prism_qt_ui/svg/star.svg"
+                    //        onClicked: {
+                    //            vm.activeProjectRvm(rvm)
+                    //            lv_projects.currentIndex = index
+                    //        }
+                    //    }
+                    //}
                     ColumnLayout {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
@@ -177,6 +183,21 @@ Rectangle {
                     return
                 vm.removeProject(lv_projects.currentIndex)
                 vm.saveProjects()
+            }
+        }
+        DesktopMenuItem {
+            text: qsTr("打开项目")
+            iconMipmap: true
+            iconColor: Style.black80
+            iconSource: CppUtility.transUrl(
+                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            onTriggered: {
+                if (!vm)
+                    return
+                var m = vm.appConf.get("projects")
+                var r = m.getRowData(lv_projects.currentIndex)
+                vm.activeProjectRvm(r)
+                projects_view_root.close()
             }
         }
     }

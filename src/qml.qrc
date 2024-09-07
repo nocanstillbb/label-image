@@ -10,5 +10,6 @@
         <file>label-image/views/NoneProject.qml</file>
         <file>label-image/views/LabelView.qml</file>
         <file>label-image/views/TrainView.qml</file>
+        <file>label-image/views/ProjectPropertiesView.qml</file>
     </qresource>
 </RCC>

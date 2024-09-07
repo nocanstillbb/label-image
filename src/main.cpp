@@ -57,7 +57,8 @@ int main(int argc, char* argv[])
     sptr_engine->rootContext()->setContextProperty("vm", &vm);
 
     // set startup rul
-    prism::qt::modular::wrapper::startupUrl = "qrc:/label-image/views/MainWindow.qml";
+    prism::qt::modular::wrapper::startupUrl = "qrc:/label-image/views/Projects_view.qml";
+    std::string startupUrl2 = "qrc:/label-image/views/MainWindow.qml";
 
     // load plugins
     std::vector<prism::qt::modular::intfModule*> plugins;
@@ -66,33 +67,50 @@ int main(int argc, char* argv[])
     prism::qt::modular::wrapper w(plugins, [&]() {
         static QMetaObject::Connection connection = QObject::connect(
             sptr_engine.get(), &QQmlApplicationEngine::objectCreated, &app, [&](QObject* object, const QUrl& url) {
-                if (url.toString() != QString::fromStdString(prism::qt::modular::wrapper::startupUrl))
-                    return;
-                auto* win = reinterpret_cast<QQuickWindow*>(object);
-                if (win)
+                if (url.toString() == QString::fromStdString(prism::qt::modular::wrapper::startupUrl))
                 {
+                    if (!object)
+                        app.exit(-1);
+                    else
+                        QObject::disconnect(connection);
+                }
+                else if (url.toString() == QString::fromStdString(startupUrl2))
+                {
+                    auto* win = reinterpret_cast<QQuickWindow*>(object);
+                    if (win)
+                    {
 #ifdef _WIN32
-                    win->setVisible(false);
-                    win->setOpacity(0);
-                    win->setWindowState(Qt::WindowMinimized);
+                        win->setVisible(false);
+                        win->setOpacity(0);
+                        win->setWindowState(Qt::WindowMinimized);
 #endif
 
-                    //退出后释放opengl共享纹理
-                    // "设置主窗口不释放纹理和场景图,退出后统一释放";
-                    win->setPersistentOpenGLContext(true);
-                    win->setPersistentSceneGraph(true);
-                    std::shared_ptr<QQuickWindow> sp_win(win, [](QQuickWindow* p) { Q_UNUSED(p) });
-                    prism::Container::get()->register_instance(sp_win);
+                        //退出后释放opengl共享纹理
+                        // "设置主窗口不释放纹理和场景图,退出后统一释放";
+                        win->setPersistentOpenGLContext(true);
+                        win->setPersistentSceneGraph(true);
+                        std::shared_ptr<QQuickWindow> sp_win(win, [](QQuickWindow* p) { Q_UNUSED(p) });
+                        prism::Container::get()->register_instance(sp_win);
+                    }
+                    if (!object)
+                        app.exit(-1);
+                    else
+                        QObject::disconnect(connection);
                 }
-                if (!object)
-                    app.exit(-1);
-                else
-                    QObject::disconnect(connection);
             },
             Qt::QueuedConnection);
 
+        //项目窗口
         sptr_engine->load(QString::fromStdString(prism::qt::modular::wrapper::startupUrl));
-        return app.exec();
+        int result = app.exec();
+        //如果选中了打开的项目,打开项目视图
+        if (vm.activeProject())
+        {
+            sptr_engine->load(QString::fromStdString(startupUrl2));
+            result = app.exec();
+        }
+
+        return result;
     });
 
     int exitCode = w.run();
