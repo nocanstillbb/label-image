@@ -104,11 +104,15 @@ int main(int argc, char* argv[])
         //项目窗口
         sptr_engine->load(QString::fromStdString(prism::qt::modular::wrapper::startupUrl));
         int result = app.exec();
+        if (result)
+            return result;
         //如果选中了打开的项目,打开项目视图
         if (vm.activeProject())
         {
             sptr_engine->load(QString::fromStdString(startupUrl2));
             result = app.exec();
+            if (result)
+                return result;
             goto openProjectWin;
         }
 
@@ -188,7 +192,7 @@ void set_cool_retro_term_app(QGuiApplication& app, QQmlApplicationEngine& engine
     engine.rootContext()->setContextProperty("defaultCmd", command);
     engine.rootContext()->setContextProperty("defaultCmdArgs", commandArgs);
 
-    engine.rootContext()->setContextProperty("workdir", getNamedArgument(args, "--workdir", "$HOME"));
+    engine.rootContext()->setContextProperty("workdir", QApplication::instance()->applicationDirPath());
     engine.rootContext()->setContextProperty("fileIO", &fileIO);
     engine.rootContext()->setContextProperty("monospaceSystemFonts", monospaceFontManager.retrieveMonospaceFonts());
 
@@ -199,10 +203,10 @@ void set_cool_retro_term_app(QGuiApplication& app, QQmlApplicationEngine& engine
     importPathList.prepend("qrc:/");
     importPathList.prepend(QCoreApplication::applicationDirPath());
     importPathList.prepend("/Users/hbb/Qt/5.15.2/clang_64/qml");
-    for (QString& item : importPathList)
-    {
-        qDebug() << item;
-    }
+    // for (QString& item : importPathList)
+    //{
+    //     qDebug() << item;
+    // }
     engine.setImportPathList(importPathList);
 }
 prism::qt::modular::intfModule* loadplugin(const std::string& module_name)

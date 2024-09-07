@@ -96,7 +96,7 @@ Rectangle {
         width: parent.width
         height: (parent.height + Math.abs(y))
         Component.onCompleted: {
-           terminalContainer.qterminalSession.sendText("ps\n");
+            terminalContainer.qterminalSession.sendText("source venv_yolo8/bin/activate && clear \n");
 
         }
     }
