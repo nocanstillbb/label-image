@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <prism/qt/core/hpp/prismQtJson.hpp>
 
 #ifdef __linux
@@ -22,7 +23,15 @@ std::shared_ptr<App_config> App_config::fromfile()
         std::string content((std::istreambuf_iterator<char>(fs_in)),
                             (std::istreambuf_iterator<char>()));
         fs_in.close();
-        return prism::json::fromJsonString<App_config>(content);
+        try
+        {
+            return prism::json::fromJsonString<App_config>(content);
+        }
+        catch (const char* ex)
+        {
+            qDebug() << QString(ex);
+        }
+        return nullptr;
     }
     else
     {

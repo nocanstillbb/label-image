@@ -11,5 +11,7 @@
         <file>label-image/views/LabelView.qml</file>
         <file>label-image/views/TrainView.qml</file>
         <file>label-image/views/ProjectPropertiesView.qml</file>
+        <file>label-image/views/PredictView.qml</file>
+        <file>label-image/views/TransModelView.qml</file>
     </qresource>
 </RCC>

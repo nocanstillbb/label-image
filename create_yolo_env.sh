@@ -16,12 +16,16 @@ fi
 
 
 #create python venv
-python -m venv  venv_yolo8
+python3 -m venv  venv_yolo8
 
 #active
 source venv_yolo8/bin/activate
 
 #install  pip install ultralytics
-cd  third-part/yolov8
 pip install  ultralytics
+wget https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8n.pt
+wget https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8s.pt
+wget https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8m.pt
+wget https://github.com/ultralytics/assets/releases/download/v8.2.0/yolov8l.pt
 cd -
+

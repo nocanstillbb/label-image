@@ -37,6 +37,12 @@ Rectangle {
                 text: Bind.create(vm.editModel, "name")
                 onTextChanged: {
                     vm.editModel.set("name", CppUtility.stdstr(text))
+
+                    var workdir =  vm.editModel.get("workDir")
+                    var regex =  /[^\/\\]+$/
+                    workdir = workdir.replace(regex,text)
+                    vm.editModel.set("workDir",CppUtility.stdstr(workdir))
+
                 }
             }
         }
@@ -113,7 +119,8 @@ Rectangle {
         rejectLabel: qsTr("取消")
         onAccepted: {
             vm.editModel.set("workDir", CppUtility.stdstr(
-                                 CppUtility.qurl2localfile(folder)))
+                                 CppUtility.qurl2localfile(folder)+"/"+vm.editModel.get("name")))
+
         }
     }
 }

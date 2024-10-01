@@ -111,6 +111,9 @@ int main(int argc, char* argv[])
         {
             sptr_engine->load(QString::fromStdString(startupUrl2));
             result = app.exec();
+
+            emit vm.windowClose(QVariant{});
+
             if (result)
                 return result;
             goto openProjectWin;
@@ -131,6 +134,7 @@ void regiestTypes()
     qRegisterMetaType<MLProject*>("MLProject*");
     qRegisterMetaType<prismModelProxy<MLProject>*>("prismModelProxy<MLProject>*");
     qRegisterMetaType<prismModelListProxy<MLProject>*>("prismModelListProxy<MLProject>*");
+    qRegisterMetaType<prismModelProxy<MLProjectImgNMSBox>*>("prismModelProxy<MLProjectImgNMSBox>*");
 
     qRegisterMetaType<bool*>("bool*");
     qRegisterMetaType<double*>("double*");
@@ -143,6 +147,7 @@ void regiestTypes()
     qRegisterMetaType<std::shared_ptr<std::vector<int>>>("std::shared_ptr<std::vector<int>>");
     qRegisterMetaType<prismModelProxy<MLProjectImg>*>("prismModelProxy<MLProjectImg>*");
     qRegisterMetaType<prismModelListProxy<MLProjectImgNMSBox>*>("prismModelListProxy<MLProjectImgNMSBox>*");
+    qRegisterMetaType<prismModelListProxy<MLProjectModel>*>("prismModelListProxy<MLProjectModel>*");
 }
 
 void set_cool_retro_term_envs()

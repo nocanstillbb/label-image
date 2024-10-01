@@ -18,9 +18,14 @@ include(ExternalProject)
 add_subdirectory(third-part/prism_all)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third-part/cool-retro-term/app)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third-part/cool-retro-term/qmltermwidget/lib)
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third-part/cool-retro-term/qmltermwidget/src/)
+
+set(Protobuf_PROTOC_EXECUTABLE /Users/hbb/source/repos/label-image/vcpkg_installed/x64-osx/tools/protobuf/protoc-25.1.0)
+
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets REQUIRED)
-
+find_package(OpenCV CONFIG REQUIRED)
 find_package(prism COMPONENTS qt::core qt::ui container qt::modular)
 find_package(fmt CONFIG REQUIRED)
 
@@ -89,6 +94,10 @@ target_link_libraries(label-image
   prism::qt::core
   prism::qt::ui
   fmt::fmt-header-only
+  opencv_core
+  opencv_imgcodecs
+  opencv_imgproc
+  #${CMAKE_BINARY_DIR}/QMLTermWidget-prefix/src/QMLTermWidget-build/QMLTermWidget/libqmltermwidget.dylib
 
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Widgets

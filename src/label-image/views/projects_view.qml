@@ -66,7 +66,6 @@ BorderlessWindow_mac {
                     }
 
                     onDoubleClicked: {
-
                         vm.activeProjectRvm(rvm)
                         projects_view_root.close()
 
@@ -174,6 +173,20 @@ BorderlessWindow_mac {
                 var r = m.getRowData(lv_projects.currentIndex)
                 vm.activeProjectRvm(r)
                 projects_view_root.close()
+            }
+        }
+        DesktopMenuItem {
+            text: qsTr("打开项目目录")
+            iconMipmap: true
+            iconColor: Style.black80
+            iconSource: CppUtility.transUrl(
+                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            onTriggered: {
+                if (!vm)
+                    return
+                var m = vm.appConf.get("projects")
+                var r = m.getRowData(lv_projects.currentIndex)
+                CppUtility.openPath(r.get("workDir"))
             }
         }
 

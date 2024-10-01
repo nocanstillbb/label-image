@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <prism/prism.hpp>
+#include <prism/prismJson.hpp>
 #include <prism/qt/core/hpp/prismModelListProxy.hpp>
 #include <prism/qt/core/hpp/prismQt.hpp>
 
@@ -33,18 +34,21 @@ struct MLProjectClassification
 };
 PRISMQT_CLASS(MLProjectClassification)
 PRISM_FIELDS(MLProjectClassification, name, color)
-
 struct MLProjectImgNMSBox
 {
     int x = 0;
     int y = 0;
     int width = 0;
     int height = 0;
+    int imageWidth = 1;
+    int imageHeight = 1;
     double confidence;
     int classificationId = 0;
+    bool isSelected = false;
 };
 PRISMQT_CLASS(MLProjectImgNMSBox)
-PRISM_FIELDS(MLProjectImgNMSBox, x, y, width, height, confidence, classificationId)
+PRISM_IGNORE_JSON_FIELD(MLProjectImgNMSBox, isSelected)
+PRISM_FIELDS(MLProjectImgNMSBox, x, y, width, height, confidence, classificationId, isSelected, imageWidth, imageHeight)
 
 struct MLProjectImg
 {
@@ -55,16 +59,33 @@ struct MLProjectImg
 PRISMQT_CLASS(MLProjectImg)
 PRISM_FIELDS(MLProjectImg, fullPath, displayName, nms_boxs)
 
+struct MLProjectModel
+{
+    std::string displayName;
+    std::string fullPath;
+    std::string dir;
+    std::string baseOn;
+    int batchs = -1;
+    int epochs = -1;
+    int imgSize = 640;
+};
+PRISMQT_CLASS(MLProjectModel)
+PRISM_FIELDS(MLProjectModel, displayName, fullPath, dir, baseOn, batchs, epochs, imgSize)
+
 struct MLProject
 {
     std::string guid;
     std::string name;
-    std::string workDir;
+    std::string workDir;  //项目目录
+    std::string imageDir; //图片目录
     std::string trainFolder = "train";
     std::string valFolder = "val";
     std::string testFolder = "test";
-    int batchs = 4;
-    int epochs = 4;
+    int batchs = 16;
+    int epochs = 100;
+    int imgSize = 640;
+    std::string modelName = "yolov8n.pt";
+    std::string device = "cpu";
 
     bool actived = false;
     ENUM_projectStatus status = ENUM_projectStatus::Normal;
@@ -74,8 +95,8 @@ struct MLProject
     std::shared_ptr<prismModelListProxy<MLProjectClassification>> classifications = std::make_shared<prismModelListProxy<MLProjectClassification>>();
 };
 PRISMQT_CLASS(MLProject)
-PRISM_IGNORE_FIELD(MLProject, trainImgs, json)
-PRISM_FIELDS(MLProject, guid, name, workDir, trainFolder, valFolder, testFolder, batchs, epochs, actived, status, trainImgs, classifications)
+PRISM_IGNORE_JSON_FIELD(MLProject, trainImgs)
+PRISM_FIELDS(MLProject, guid, name, workDir, imageDir, trainFolder, valFolder, testFolder, batchs, epochs, imgSize, modelName, device, actived, status, trainImgs, classifications)
 
 struct App_config
 {

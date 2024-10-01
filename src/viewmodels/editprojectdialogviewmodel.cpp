@@ -1,4 +1,8 @@
 #include "editprojectdialogviewmodel.h"
+#include <QDir>
+#include <QStandardPaths>
+#include <QString>
+#include <fmt/color.h>
 
 editProjectDialogViewmodel::editProjectDialogViewmodel(QObject* parent, prismModelProxy<MLProject>* model)
     : QObject(parent)
@@ -27,5 +31,10 @@ void editProjectDialogViewmodel::save()
     auto& left = *this->m_model->instance();
     auto& right = *editModel()->instance();
     prism::reflection::copy(left, right);
+
+    QDir dir(QString::fromStdString(right.workDir));
+    if (!dir.exists())
+        dir.mkpath(QString::fromStdString(right.workDir));
+
     this->m_model->update();
 }

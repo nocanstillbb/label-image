@@ -9,5 +9,10 @@ BorderlessWindow_mac {
     minimumWidth: 1024
     minimumHeight: 720
     contentUrl: CppUtility.transUrl("qrc:/label-image/views/MainContent.qml")
+    //onActiveFocusItemChanged: {
+    //    console.log(activeFocusItem)
+    //}
+
+
 
 }
