@@ -19,6 +19,8 @@ class mainViewModel : public QObject
     Q_PROPERTY(QString predict_img_buf_sn READ predict_img_buf_sn WRITE setPredict_img_buf_sn NOTIFY predict_img_buf_snChanged)
     Q_PROPERTY(int mainTabIndex READ mainTabIndex WRITE setMainTabIndex NOTIFY mainTabIndexChanged)
     Q_PROPERTY(prismModelListProxy<MLProjectModel>* modelList READ modelList WRITE setModelList NOTIFY modelListChanged)
+    Q_PROPERTY(bool tabindex0reloadImages READ tabindex0reloadImages WRITE setTabindex0reloadImages NOTIFY tabindex0reloadImagesChanged)
+    Q_PROPERTY(bool reloading READ reloading WRITE setReloading NOTIFY reloadingChanged)
 
   private:
     prismModelProxy<App_config>* m_appConf = nullptr;
@@ -31,6 +33,10 @@ class mainViewModel : public QObject
     int m_mainTabIndex = 0;
 
     prismModelListProxy<MLProjectModel>* m_modelList = nullptr;
+
+    bool m_tabindex0reloadImages = false;
+
+    bool m_reloading = true;
 
   public:
     explicit mainViewModel(QObject* parent = nullptr);
@@ -53,6 +59,12 @@ class mainViewModel : public QObject
     prismModelListProxy<MLProjectModel>* modelList() const;
     void setModelList(prismModelListProxy<MLProjectModel>* newModelList);
 
+    bool tabindex0reloadImages() const;
+    void setTabindex0reloadImages(bool newTabindex0reloadImages);
+
+    bool reloading() const;
+    void setReloading(bool newReloading);
+
   signals:
 
     void appConfChanged();
@@ -70,6 +82,10 @@ class mainViewModel : public QObject
 
     void modelListChanged();
 
+    void tabindex0reloadImagesChanged();
+
+    void reloadingChanged();
+
   public slots:
     void displayFirstImg();
     void openEditProjectWin(prismModelProxy<MLProject>* rvm);
@@ -78,12 +94,14 @@ class mainViewModel : public QObject
     void saveProjects();
     void activeProjectRvm(prismModelProxy<MLProject>* rvm);
     void onclickImg(prismModelProxy<MLProjectImg>* img);
-    void add_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, int x, int y, int width, int height, int classification, int imageWidth, int imageHeight);
-    void save_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, QString imagePath);
+    void add_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, int x, int y, int width, int height, int classification, int imageWidth, int imageHeight, QString img_path);
+    void save_boxs(prismModelListProxy<MLProjectImgNMSBox>* boxs, QString imagePath, QString suffix = "txt");
     int add_classification();
     bool loadImages(QString imageFolder);
     void loadModelList();
     void train();
+    void removeAllPredictFiles();
+    void mergeAllPredictFiles();
 };
 
 #endif // MAINVIEWMODEL_H

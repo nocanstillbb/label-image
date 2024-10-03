@@ -17,10 +17,14 @@ Rectangle {
     id: terminalWindow
     signal activeChanged
     color: "white"
-    property bool isForgroundShell: true
+    property bool isForgroundShell: Bind.create(proj,"isbusy")
+    property bool lastIsForgroundShell
     onIsForgroundShellChanged: {
-        if(isForgroundShell)
+        if(isForgroundShell && isForgroundShell!=lastIsForgroundShell && !vm.tabindex0reloadImages)
+        {
             vm.loadModelList()
+        }
+        lastIsForgroundShell = isForgroundShell
     }
     onActiveChanged: {
         terminalContainer.qterminal.forceActiveFocus()
@@ -40,7 +44,7 @@ Rectangle {
         repeat: true // 设置定时器重复执行
         onTriggered: {
             var pid =terminalContainer.qterminalSession.getShellPID()
-            terminalWindow.isForgroundShell  = CppUtility.isForegroundShell(pid)
+            proj.set("isbusy",!CppUtility.isForegroundShell(pid))
         }
     }
 
@@ -146,6 +150,7 @@ Rectangle {
                     onDoubleClicked: {
 
                     }
+                    clip: true
                     rootIndex:  model_properties?model_properties[0]:tree_view.rootIndex
                     //headerDelegate: Item{ height: 1}
                     style: TreeViewStyle {
@@ -232,13 +237,17 @@ Rectangle {
                         corner: Item {implicitHeight: 0;implicitWidth: 5 }
 
                         headerDelegate: Rectangle{
-                            color: Style.lightblue70
                             height: 30
-                            Text {
+                            color: "white"
+                            Rectangle{
                                 anchors.fill: parent
-                                anchors.leftMargin: 10
-                                verticalAlignment: Text.AlignVCenter
-                                text: styleData.value
+                                color: Style.lightblue70
+                                Text {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 10
+                                    verticalAlignment: Text.AlignVCenter
+                                    text: styleData.value
+                                }
                             }
 
                             Rectangle{
@@ -579,7 +588,7 @@ Rectangle {
             }
             Text{
                 Layout.fillWidth: true
-                visible: terminalWindow.isForgroundShell
+                visible: !Bind.create(proj,"isbusy")
                 text: "当前基准模型 : " + Bind.create(proj,"modelName")
 
             }
@@ -591,7 +600,7 @@ Rectangle {
                 }
                 Q1.Button{
                     text: "训练"
-                    enabled: terminalWindow.isForgroundShell
+                    enabled: !Bind.create(proj,"isbusy")
                     onClicked:{
                         vm.train();
                     }
@@ -599,21 +608,21 @@ Rectangle {
                 Q1.Button{
                     id:btn_terminal
                     text: "中止任务"
-                    enabled: !terminalWindow.isForgroundShell
+                    enabled: Bind.create(proj,"isbusy")
                     onClicked:{
                         var pid =terminalContainer.qterminalSession.getShellPID()
                         var result = CppUtility.killProceById(pid)
                         timer.stop()
-                        terminalWindow.isForgroundShell=true
+                        proj.set("isbusy",false)
                         terminalWindow.parent.updateUrl()
                     }
                 }
                 Q1.Button{
                     text: "清屏"
-                    enabled: terminalWindow.isForgroundShell
+                    enabled: !Bind.create(proj,"isbusy")
                     onClicked: {
                         timer.stop()
-                        terminalWindow.isForgroundShell=true
+                        proj.set("isbusy",false)
                         terminalWindow.parent.updateUrl()
                     }
                 }

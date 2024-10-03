@@ -45,19 +45,24 @@ struct MLProjectImgNMSBox
     double confidence;
     int classificationId = 0;
     bool isSelected = false;
+    QString img_path;
+    QString label_path;
 };
 PRISMQT_CLASS(MLProjectImgNMSBox)
 PRISM_IGNORE_JSON_FIELD(MLProjectImgNMSBox, isSelected)
-PRISM_FIELDS(MLProjectImgNMSBox, x, y, width, height, confidence, classificationId, isSelected, imageWidth, imageHeight)
+PRISM_IGNORE_JSON_FIELD(MLProjectImgNMSBox, img_path)
+PRISM_IGNORE_JSON_FIELD(MLProjectImgNMSBox, label_path)
+PRISM_FIELDS(MLProjectImgNMSBox, x, y, width, height, confidence, classificationId, isSelected, imageWidth, imageHeight, img_path, label_path)
 
 struct MLProjectImg
 {
     std::string fullPath;
     std::string displayName;
     std::shared_ptr<prismModelListProxy<MLProjectImgNMSBox>> nms_boxs = std::make_shared<prismModelListProxy<MLProjectImgNMSBox>>();
+    std::shared_ptr<prismModelListProxy<MLProjectImgNMSBox>> predict_boxs = std::make_shared<prismModelListProxy<MLProjectImgNMSBox>>();
 };
 PRISMQT_CLASS(MLProjectImg)
-PRISM_FIELDS(MLProjectImg, fullPath, displayName, nms_boxs)
+PRISM_FIELDS(MLProjectImg, fullPath, displayName, nms_boxs, predict_boxs)
 
 struct MLProjectModel
 {
@@ -88,6 +93,8 @@ struct MLProject
     std::string device = "cpu";
 
     bool actived = false;
+    bool isbusy = false;
+    int tabindex = 0;
     ENUM_projectStatus status = ENUM_projectStatus::Normal;
 
     std::shared_ptr<prismModelListProxy<MLProjectImg>> trainImgs = std::make_shared<prismModelListProxy<MLProjectImg>>();
@@ -96,7 +103,8 @@ struct MLProject
 };
 PRISMQT_CLASS(MLProject)
 PRISM_IGNORE_JSON_FIELD(MLProject, trainImgs)
-PRISM_FIELDS(MLProject, guid, name, workDir, imageDir, trainFolder, valFolder, testFolder, batchs, epochs, imgSize, modelName, device, actived, status, trainImgs, classifications)
+PRISM_IGNORE_JSON_FIELD(MLProject, isbusy)
+PRISM_FIELDS(MLProject, guid, name, workDir, imageDir, trainFolder, valFolder, testFolder, batchs, epochs, imgSize, modelName, device, actived, isbusy, tabindex, status, trainImgs, classifications)
 
 struct App_config
 {

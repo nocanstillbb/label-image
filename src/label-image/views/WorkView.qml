@@ -14,8 +14,12 @@ Item {
     property var proj: vm? vm.activeProject:null
     Q1.TabView {
         id:tv
+        currentIndex: vm.mainTabIndex
         onCurrentIndexChanged: {
-            vm.mainTabIndex = tv.currentIndex
+            if(vm.mainTabIndex!== currentIndex)
+            {
+                vm.mainTabIndex = tv.currentIndex
+            }
         }
         anchors.fill: parent
         style: TabViewStyle {
@@ -38,8 +42,12 @@ Item {
 
 
         Q1.Tab {
-            title: "标注"
-            LabelView {}
+            title: "标注/预测"
+            LiveLoader{
+                id:ld_labelview
+                source: CppUtility.transUrl("qrc:/label-image/views/LabelView.qml")
+                showButton: true
+            }
         }
         Q1.Tab {
             title: "训练"
@@ -56,17 +64,17 @@ Item {
                 }
             }
         }
-        Q1.Tab{
-            title: "预测"
-            LiveLoader{
-                id:ld_predictView
-                source: CppUtility.transUrl("qrc:/label-image/views/PredictView.qml")
-                showButton: true
-            }
-        }
-        Q1.Tab {
-            title: "模型转换"
-            TransModelView{}
-        }
+        //Q1.Tab{
+        //    title: "预测"
+        //    LiveLoader{
+        //        id:ld_predictView
+        //        source: CppUtility.transUrl("qrc:/label-image/views/PredictView.qml")
+        //        showButton: true
+        //    }
+        //}
+        //Q1.Tab {
+        //    title: "模型转换"
+        //    TransModelView{}
+        //}
     }
 }

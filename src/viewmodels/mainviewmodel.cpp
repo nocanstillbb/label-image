@@ -8,6 +8,7 @@
 #include <QString>
 #include <QUuid>
 #include <fmt/core.h>
+#include <math.h>
 #include <opencv2/opencv.hpp>
 #include <prism/container.hpp>
 #include <prism/qt/core/hpp/prismModelListProxy.hpp>
@@ -148,7 +149,7 @@ void mainViewModel::onclickImg(prismModelProxy<MLProjectImg>* img)
     buf->buffer_cv.notify_one();
 }
 
-void mainViewModel::add_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, int x, int y, int width, int height, int classification, int imageWidth, int imageHeight)
+void mainViewModel::add_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, int x, int y, int width, int height, int classification, int imageWidth, int imageHeight, QString img_path)
 {
     if (!boxs)
         return;
@@ -160,10 +161,11 @@ void mainViewModel::add_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, i
     box->imageWidth = imageWidth;
     box->imageHeight = imageHeight;
     box->classificationId = classification;
+    box->img_path = img_path;
     boxs->appendItem(box);
 }
 
-void mainViewModel::save_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, QString imagePath)
+void mainViewModel::save_boxs(prismModelListProxy<MLProjectImgNMSBox>* boxs, QString imagePath, QString suffix)
 {
     std::string labelString;
     int i = 0;
@@ -179,27 +181,52 @@ void mainViewModel::save_nms_box(prismModelListProxy<MLProjectImgNMSBox>* boxs, 
         }
         ++i;
         std::shared_ptr<MLProjectImgNMSBox> m = box->instance();
-        std::string sublabelString = fmt::format("{} {} {} {} {}",
-                                                 m->classificationId,
-                                                 (m->x + m->width / 2) * 1.0 / m->imageWidth,
-                                                 (m->y + m->height / 2) * 1.0 / m->imageHeight,
-                                                 m->width * 1.0 / m->imageWidth,
-                                                 m->height * 1.0 / m->imageHeight);
+        std::string sublabelString;
+        if (suffix == "txt")
+        {
+            sublabelString = fmt::format("{} {} {} {} {}",
+                                         m->classificationId,
+                                         (m->x + m->width / 2) * 1.0 / m->imageWidth,
+                                         (m->y + m->height / 2) * 1.0 / m->imageHeight,
+                                         m->width * 1.0 / m->imageWidth,
+                                         m->height * 1.0 / m->imageHeight);
+        }
+        else if (suffix == "predict")
+        {
+            sublabelString = fmt::format("{} {} {} {} {} {}",
+                                         m->classificationId,
+                                         (m->x + m->width / 2) * 1.0 / m->imageWidth,
+                                         (m->y + m->height / 2) * 1.0 / m->imageHeight,
+                                         m->width * 1.0 / m->imageWidth,
+                                         m->height * 1.0 / m->imageHeight,
+                                         m->confidence);
+        }
         labelString += sublabelString;
     }
-    QString labelPath = imagePath.replace(QRegExp(R"(([^.]+)$)"), "txt");
+    QString labelPath = imagePath.replace(QRegExp(R"(([^.]+)$)"), suffix); // txt or predict format
     QFile file(imagePath);
-    // 以写入模式打开文件，如果文件存在则覆盖，如果不存在则创建
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    if (boxs->list()->size())
     {
-        qDebug() << "Cannot open file for writing:" << file.errorString();
-        return;
+        // 以写入模式打开文件，如果文件存在则覆盖，如果不存在则创建
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            qDebug() << "Cannot open file for writing:" << file.errorString();
+            return;
+        }
+        // 使用 QTextStream 来写入数据
+        QTextStream out(&file);
+        out << QString::fromStdString(labelString);
+        // 关闭文件
+        file.close();
     }
-    // 使用 QTextStream 来写入数据
-    QTextStream out(&file);
-    out << QString::fromStdString(labelString);
-    // 关闭文件
-    file.close();
+    else
+    {
+
+        if (!file.remove(labelPath))
+        {
+            qDebug() << "文件删除失败:" << labelPath;
+        }
+    }
 }
 
 int mainViewModel::add_classification()
@@ -238,35 +265,76 @@ bool mainViewModel::loadImages(QString imageFolder)
                 img->displayName = fileName.toStdString();
                 img->fullPath = filePath.toStdString();
 
-                QString labelFilePath = filePath;
-                labelFilePath = labelFilePath.replace(QRegExp(R"([^.]+$)"), "txt");
-                // qDebug() << "label file full path:" << labelFilePath;
-                QFile labelFile(labelFilePath);
-                if (labelFile.exists())
                 {
-                    labelFile.open(QFile::ReadOnly);
-                    QList<QByteArray> lines = labelFile.readAll().split('\n');
-                    labelFile.close();
-                    for (QByteArray& line : lines)
+                    QString labelFilePath = filePath;
+                    labelFilePath = labelFilePath.replace(QRegExp(R"([^.]+$)"), "txt");
+                    // qDebug() << "label file full path:" << labelFilePath;
+                    QFile labelFile(labelFilePath);
+                    if (labelFile.exists())
                     {
-                        QString qline = QString::fromUtf8(line);
-                        if (qline.isNull() || qline.isEmpty())
-                            continue;
-                        QList<QByteArray> datas = line.split(' ');
-                        std::shared_ptr<MLProjectImgNMSBox> box = std::make_shared<MLProjectImgNMSBox>();
-                        box->classificationId = datas[0].toInt();
-                        double cx = datas[1].toDouble();
-                        double cy = datas[2].toDouble();
-                        double width = datas[3].toDouble();
-                        double height = datas[4].toDouble();
-                        QImage readimg(filePath);
-                        box->x = (cx - width / 2) * readimg.width();
-                        box->y = (cy - height / 2) * readimg.height();
-                        box->width = width * readimg.width();
-                        box->height = height * readimg.height();
-                        box->imageWidth = readimg.width();
-                        box->imageHeight = readimg.height();
-                        img->nms_boxs->appendItemNotNotify(box);
+                        labelFile.open(QFile::ReadOnly);
+                        QList<QByteArray> lines = labelFile.readAll().split('\n');
+                        labelFile.close();
+                        for (QByteArray& line : lines)
+                        {
+                            QString qline = QString::fromUtf8(line);
+                            if (qline.isNull() || qline.isEmpty())
+                                continue;
+                            QList<QByteArray> datas = line.split(' ');
+                            std::shared_ptr<MLProjectImgNMSBox> box = std::make_shared<MLProjectImgNMSBox>();
+                            box->classificationId = datas[0].toInt();
+                            double cx = datas[1].toDouble();
+                            double cy = datas[2].toDouble();
+                            double width = datas[3].toDouble();
+                            double height = datas[4].toDouble();
+                            QImage readimg(filePath);
+                            box->x = (cx - width / 2) * readimg.width();
+                            box->y = (cy - height / 2) * readimg.height();
+                            box->width = width * readimg.width();
+                            box->height = height * readimg.height();
+                            box->imageWidth = readimg.width();
+                            box->imageHeight = readimg.height();
+                            box->img_path = filePath;
+                            box->label_path = labelFilePath;
+                            img->nms_boxs->appendItemNotNotify(box);
+                        }
+                    }
+                }
+                {
+                    QString labelFilePath = filePath;
+                    labelFilePath = labelFilePath.replace(QRegExp(R"([^.]+$)"), "predict");
+                    // qDebug() << "label file full path:" << labelFilePath;
+                    QFile labelFile(labelFilePath);
+                    if (labelFile.exists())
+                    {
+                        labelFile.open(QFile::ReadOnly);
+                        QList<QByteArray> lines = labelFile.readAll().split('\n');
+                        labelFile.close();
+                        for (QByteArray& line : lines)
+                        {
+                            QString qline = QString::fromUtf8(line);
+                            if (qline.isNull() || qline.isEmpty())
+                                continue;
+                            QList<QByteArray> datas = line.split(' ');
+                            std::shared_ptr<MLProjectImgNMSBox> box = std::make_shared<MLProjectImgNMSBox>();
+                            box->classificationId = datas[0].toInt();
+                            double cx = datas[1].toDouble();
+                            double cy = datas[2].toDouble();
+                            double width = datas[3].toDouble();
+                            double height = datas[4].toDouble();
+                            double conf = datas[5].toDouble();
+                            QImage readimg(filePath);
+                            box->x = (cx - width / 2) * readimg.width();
+                            box->y = (cy - height / 2) * readimg.height();
+                            box->width = width * readimg.width();
+                            box->height = height * readimg.height();
+                            box->imageWidth = readimg.width();
+                            box->imageHeight = readimg.height();
+                            box->img_path = filePath;
+                            box->label_path = labelFilePath;
+                            box->confidence = conf;
+                            img->predict_boxs->appendItemNotNotify(box);
+                        }
                     }
                 }
                 activeProject()->instance()->trainImgs->appendItemNotNotify(img);
@@ -380,6 +448,58 @@ void mainViewModel::train()
                       .arg(activeProject()->instance()->device.c_str(), 10)
                       .arg(trainLogDirStr, 11)
                       .arg("result", 12));
+}
+
+void mainViewModel::removeAllPredictFiles()
+{
+    if (!activeProject())
+        return;
+
+    QDir directory(QString::fromStdString(activeProject()->instance()->imageDir));
+    if (!directory.exists())
+    {
+        qDebug() << "目录不存在";
+        return;
+    }
+    // 获取目录中的所有文件条目
+    QFileInfoList fileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+    // 遍历并打印出完整路径和文件名
+    foreach (QFileInfo fileInfo, fileList)
+    {
+        QString filePath = fileInfo.absoluteFilePath();
+        QString fileName = fileInfo.fileName();
+        if (fileName.contains(".predict"))
+        {
+            QFile f(filePath);
+            if (!f.remove(filePath))
+            {
+                qDebug() << ".predict file remove failed:" << filePath;
+            }
+        }
+    }
+}
+
+void mainViewModel::mergeAllPredictFiles()
+{
+    if (!activeProject())
+        return;
+    for (std::shared_ptr<prismModelProxy<MLProjectImg>> item : *activeProject()->instance()->trainImgs->list())
+    {
+        item->instance()->nms_boxs->pub_beginResetModel();
+        for (auto predictBox : *item->instance()->predict_boxs->list())
+        {
+            item->instance()->nms_boxs->appendItem(predictBox->instance());
+        }
+        item->instance()->nms_boxs->pub_endResetModel();
+
+        item->instance()->predict_boxs->pub_beginResetModel();
+        item->instance()->predict_boxs->removeAllItemsNotNotify();
+        item->instance()->predict_boxs->pub_endResetModel();
+
+        QString imgdir = QString::fromStdString(item->instance()->fullPath);
+        this->save_boxs(item->instance()->nms_boxs.get(), imgdir, "txt");
+        this->save_boxs(item->instance()->predict_boxs.get(), imgdir, "predict");
+    }
 }
 
 void mainViewModel::displayFirstImg()
@@ -513,7 +633,7 @@ void mainViewModel::loadModelList()
         QFile modelfile(modelFullPath);
         if (!modelfile.exists())
             continue;
-        qDebug() << modelFullPath;
+        // qDebug() << modelFullPath;
         std::shared_ptr<MLProjectModel> model = std::make_shared<MLProjectModel>();
 
         model->displayName = logDir.toStdString();
@@ -543,7 +663,7 @@ void mainViewModel::loadModelList()
         regex = QRegularExpression("^\\s*imgsz: (.*)$", QRegularExpression::MultilineOption);
         QString imgSize = regex.match(argsFileContent).captured(1);
 
-        qDebug() << "baseon:" << baseOn << "   epochs:" << epochs << "   batch:" << batch << "   imageSize:" << imgSize;
+        // qDebug() << "baseon:" << baseOn << "   epochs:" << epochs << "   batch:" << batch << "   imageSize:" << imgSize;
 
         model->baseOn = baseOn.toStdString();
         model->epochs = epochs.toInt();
@@ -554,4 +674,30 @@ void mainViewModel::loadModelList()
     }
 
     modelList()->pub_endResetModel();
+}
+
+bool mainViewModel::tabindex0reloadImages() const
+{
+    return m_tabindex0reloadImages;
+}
+
+void mainViewModel::setTabindex0reloadImages(bool newTabindex0reloadImages)
+{
+    if (m_tabindex0reloadImages == newTabindex0reloadImages)
+        return;
+    m_tabindex0reloadImages = newTabindex0reloadImages;
+    emit tabindex0reloadImagesChanged();
+}
+
+bool mainViewModel::reloading() const
+{
+    return m_reloading;
+}
+
+void mainViewModel::setReloading(bool newReloading)
+{
+    if (m_reloading == newReloading)
+        return;
+    m_reloading = newReloading;
+    emit reloadingChanged();
 }
