@@ -14,17 +14,26 @@ Rectangle {
     property int isbusy: Bind.create(proj,"isbusy")
     property int tab0_model_index: 0
     onIsbusyChanged: {
-        if(vm.tabindex0reloadImages && !isbusy)
+        if(!isbusy)
         {
-            vm.mainTabIndex = 0
-            vm2.reloading = true
-            var backindex = lv_train_imgs.currentIndex
-            vm.loadImages(tb_iamgedir.text)
-            lv_train_imgs.currentIndex = -1
-            lv_train_imgs.currentIndex = backindex
-            vm2.reloading = false
-            vm.tabindex0reloadImages = false
-            lv_logModel.currentIndex = tab0_model_index
+            if(vm.tabindex0reloadImages )//预测结束
+            {
+                vm.mainTabIndex = 0
+                vm2.reloading = true
+                var backindex = lv_train_imgs.currentIndex
+                vm.loadImages(tb_iamgedir.text)
+                //JsEx.delay(lableview_root,10000,function(){
+                    lv_train_imgs.currentIndex = -1
+                    lv_train_imgs.currentIndex = backindex
+                    vm2.reloading = false
+                    vm.tabindex0reloadImages = false
+                    lv_logModel.currentIndex = tab0_model_index
+                //})
+            }
+            else //训练结束
+            {
+                vm.loadModelList()
+            }
         }
     }
     QtPlatform.FolderDialog {
@@ -242,18 +251,17 @@ Rectangle {
                                         return
                                     if(!lv_logModel.currentRvm)
                                         return
-                                    proj.set("isbusy",true)
                                     lableview_root.tab0_model_index = lv_logModel.currentIndex
                                     vm.tabindex0reloadImages = true
-                                    vm.mainTabIndex = 1
+                                    vm.mainTabIndex =1
                                     var currentImagePath =lv_train_imgs.currentRvm.get("fullPath")
                                     var currentImageDirPath =proj.get("imageDir") + "/"
                                     //console.log("currentImageDirPath:",currentImageDirPath)
                                     var cmdRmPredictDir = 'rm -rf "'+ currentImageDirPath+'predict"'
                                     //console.log("cmdRmPredictDir:",cmdRmPredictDir)
-                                    console.log(lv_logModel.currentIndex)
+                                    //console.log(lv_logModel.currentIndex)
                                     lv_logModel.currentRvm = lv_logModel.model_models.getRowData(lv_logModel.currentIndex)
-                                    console.log(lv_logModel.currentRvm)
+                                    //console.log(lv_logModel.currentRvm)
                                     var cmdPredict = 'yolo detect predict '+
                                             'model="'+ lv_logModel.currentRvm.get("fullPath")+ '" '+
                                             'source="'+currentImagePath+'" '+
@@ -270,28 +278,33 @@ Rectangle {
 
 
                                     var cmd_all=  cmdRmPredictDir+" && "+ cmdPredict + " && " + cmdRename +" && "+ cmd_overwrite
-                                    console.log(cmd_all)
+                                    //console.log(cmd_all)
 
                                     //vm.sendText2term(cmdRename+" \n")
                                     vm.sendText2term(cmd_all+" \n")
                                     lv_logModel.currentIndex = -1
+                                    proj.set("isbusy",true)
                                 }
                             }
                             Q1.Button{
                                 text: "预测全部"
                                 enabled: lv_logModel.currentIndex!=-1 &&  !lableview_root.isbusy
                                 onClicked: {
+                                    if(!lv_train_imgs.currentRvm)
+                                        return
                                     if(!lv_logModel.currentRvm)
                                         return
-                                    proj.set("isbusy",true)
                                     lableview_root.tab0_model_index = lv_logModel.currentIndex
                                     vm.tabindex0reloadImages = true
-                                    vm.mainTabIndex = 1
+                                    vm.mainTabIndex =1
+                                    var currentImagePath =lv_train_imgs.currentRvm.get("fullPath")
                                     var currentImageDirPath =proj.get("imageDir") + "/"
                                     //console.log("currentImageDirPath:",currentImageDirPath)
                                     var cmdRmPredictDir = 'rm -rf "'+ currentImageDirPath+'predict"'
                                     //console.log("cmdRmPredictDir:",cmdRmPredictDir)
+                                    //console.log(lv_logModel.currentIndex)
                                     lv_logModel.currentRvm = lv_logModel.model_models.getRowData(lv_logModel.currentIndex)
+                                    //console.log(lv_logModel.currentRvm)
                                     var cmdPredict = 'yolo detect predict '+
                                             'model="'+ lv_logModel.currentRvm.get("fullPath")+ '" '+
                                             'source="'+currentImageDirPath+'" '+
@@ -306,12 +319,14 @@ Rectangle {
                                     var cmd_overwrite = 'cp -rf "'+ currentImageDirPath+'predict/labels/"' + ' "' + currentImageDirPath +'"'
                                     //console.log(cmd_overwrite)
 
+
                                     var cmd_all=  cmdRmPredictDir+" && "+ cmdPredict + " && " + cmdRename +" && "+ cmd_overwrite
-                                    console.log(cmd_all)
+                                    //console.log(cmd_all)
 
                                     //vm.sendText2term(cmdRename+" \n")
                                     vm.sendText2term(cmd_all+" \n")
                                     lv_logModel.currentIndex = -1
+                                    proj.set("isbusy",true)
                                 }
                             }
 
@@ -963,7 +978,7 @@ Rectangle {
                                                     ToolTip.delay: 300
                                                     property var classificationId:  Bind.create(box_row_root.rvm,"classificationId")??-1
                                                     property var lable_rvm : classificationId>=0? lv_labels.model_labels.getRowData(classificationId):null
-                                                    color: Bind.create(lable_rvm, "color")??color
+                                                    color: Bind.create(lable_rvm, "color")??"red"
                                                     hoveredColor: JsEx.setColorAlpha(color,0.5)
                                                     icon: "qrc:/prism_qt_ui/svg/menu_delete.svg"
                                                     onClicked: {

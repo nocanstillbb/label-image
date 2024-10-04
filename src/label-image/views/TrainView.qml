@@ -17,15 +17,6 @@ Rectangle {
     id: terminalWindow
     signal activeChanged
     color: "white"
-    property bool isForgroundShell: Bind.create(proj,"isbusy")
-    property bool lastIsForgroundShell
-    onIsForgroundShellChanged: {
-        if(isForgroundShell && isForgroundShell!=lastIsForgroundShell && !vm.tabindex0reloadImages)
-        {
-            vm.loadModelList()
-        }
-        lastIsForgroundShell = isForgroundShell
-    }
     onActiveChanged: {
         terminalContainer.qterminal.forceActiveFocus()
     }
@@ -44,7 +35,11 @@ Rectangle {
         repeat: true // 设置定时器重复执行
         onTriggered: {
             var pid =terminalContainer.qterminalSession.getShellPID()
-            proj.set("isbusy",!CppUtility.isForegroundShell(pid))
+            var a = !CppUtility.isForegroundShell(pid)
+            if(a!==proj.get("isbusy"))
+            {
+                proj.set("isbusy",a)
+            }
         }
     }
 

@@ -13,6 +13,7 @@ import Qt.labs.platform 1.1 as QtPlatform
 Item {
     property var proj: vm? vm.activeProject:null
     Q1.TabView {
+        enabled: !Bind.create(proj,"isbusy")
         id:tv
         currentIndex: vm.mainTabIndex
         onCurrentIndexChanged: {
@@ -76,5 +77,18 @@ Item {
         //    title: "模型转换"
         //    TransModelView{}
         //}
+    }
+
+    Rectangle{
+        z:100
+        anchors.fill: parent
+        visible:  Bind.create(proj,"isbusy")
+        color: "#33ffffff"
+        BusyIndicator{
+            width: 100
+            height: 100
+            anchors.centerIn: parent
+            running: Bind.create(proj,"isbusy")
+        }
     }
 }

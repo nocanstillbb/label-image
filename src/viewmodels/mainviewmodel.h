@@ -98,6 +98,7 @@ class mainViewModel : public QObject
     void save_boxs(prismModelListProxy<MLProjectImgNMSBox>* boxs, QString imagePath, QString suffix = "txt");
     int add_classification();
     bool loadImages(QString imageFolder);
+    bool loadImage(prismModelProxy<MLProjectImg>* imgRvm);
     void loadModelList();
     void train();
     void removeAllPredictFiles();
