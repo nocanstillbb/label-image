@@ -109,6 +109,7 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.margins: 40
         onClicked: {
+            vm.parentVM.removeAvoidProject = false
             vm.save()
             Window.window.close()
         }

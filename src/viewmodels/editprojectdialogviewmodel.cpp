@@ -9,6 +9,7 @@ editProjectDialogViewmodel::editProjectDialogViewmodel(QObject* parent, prismMod
 {
 
     m_model = model;
+    setParentVM(reinterpret_cast<mainViewModel*>(parent));
 
     setEditModel(new prismModelProxy<MLProject>(this, std::make_shared<MLProject>(*model->instance()))); //深复制一份用于编辑
 }
@@ -37,4 +38,17 @@ void editProjectDialogViewmodel::save()
         dir.mkpath(QString::fromStdString(right.workDir));
 
     this->m_model->update();
+}
+
+mainViewModel* editProjectDialogViewmodel::parentVM() const
+{
+    return m_parentVM;
+}
+
+void editProjectDialogViewmodel::setParentVM(mainViewModel* newParentVM)
+{
+    if (m_parentVM == newParentVM)
+        return;
+    m_parentVM = newParentVM;
+    emit parentVMChanged();
 }

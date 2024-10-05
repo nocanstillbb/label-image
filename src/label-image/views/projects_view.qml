@@ -148,10 +148,18 @@ BorderlessWindow_mac {
         hoveredColor: Style.black50
         icon: "qrc:/prism_qt_ui/svg/plush.svg"
         onClicked: {
+            vm.removeAvoidProject = true;
             var index = vm.addProject()
-            vm.saveProjects()
-            lv_projects.currentIndex = index
-            lv_projects.positionViewAtIndex(index, ListView.Beginning)
+            if(!vm.removeAvoidProject)
+            {
+                vm.saveProjects()
+                lv_projects.currentIndex = index
+                lv_projects.positionViewAtIndex(index, ListView.Beginning)
+            }
+            else
+            {
+                vm.removeProject(vm.appConf.get("projects").length() -1)
+            }
         }
     }
 
@@ -162,10 +170,9 @@ BorderlessWindow_mac {
 
         DesktopMenuItem {
             text: qsTr("打开项目")
-            iconMipmap: true
-            iconColor: Style.black80
-            iconSource: CppUtility.transUrl(
-                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            //iconMipmap: true
+            //iconColor: Style.black80
+            //iconSource: CppUtility.transUrl("qrc:/prism_qt_ui/svg/menu_delete.svg")
             onTriggered: {
                 if (!vm)
                     return
@@ -177,10 +184,9 @@ BorderlessWindow_mac {
         }
         DesktopMenuItem {
             text: qsTr("打开项目目录")
-            iconMipmap: true
-            iconColor: Style.black80
-            iconSource: CppUtility.transUrl(
-                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            //iconMipmap: true
+            //iconColor: Style.black80
+            //iconSource: CppUtility.transUrl("qrc:/prism_qt_ui/svg/menu_delete.svg")
             onTriggered: {
                 if (!vm)
                     return
@@ -192,13 +198,14 @@ BorderlessWindow_mac {
 
         DesktopMenuItem {
             text: qsTr("编辑")
-            iconMipmap: true
-            iconColor: Style.black80
-            iconSource: CppUtility.transUrl(
-                            "qrc:/prism_qt_ui/svg/menu_edit.svg")
+            //iconMipmap: true
+            //iconColor: Style.black80
+            //iconSource: CppUtility.transUrl("qrc:/prism_qt_ui/svg/menu_edit.svg")
             onTriggered: {
                 if (!vm)
                     return
+
+                vm.removeAvoidProject = false
                 var m = vm.appConf.get("projects")
                 var r = m.getRowData(lv_projects.currentIndex)
                 vm.openEditProjectWin(r)
@@ -207,10 +214,9 @@ BorderlessWindow_mac {
         }
         DesktopMenuItem {
             text: qsTr("删除")
-            iconMipmap: true
-            iconColor: Style.black80
-            iconSource: CppUtility.transUrl(
-                            "qrc:/prism_qt_ui/svg/menu_delete.svg")
+            //iconMipmap: true
+            //iconColor: Style.black80
+            //iconSource: CppUtility.transUrl("qrc:/prism_qt_ui/svg/menu_delete.svg")
             onTriggered: {
                 if (!vm)
                     return

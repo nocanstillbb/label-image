@@ -794,3 +794,16 @@ void mainViewModel::setReloading(bool newReloading)
     m_reloading = newReloading;
     emit reloadingChanged();
 }
+
+bool mainViewModel::removeAvoidProject() const
+{
+    return m_removeAvoidProject;
+}
+
+void mainViewModel::setRemoveAvoidProject(bool newRemoveAvoidProject)
+{
+    if (m_removeAvoidProject == newRemoveAvoidProject)
+        return;
+    m_removeAvoidProject = newRemoveAvoidProject;
+    emit removeAvoidProjectChanged();
+}

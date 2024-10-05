@@ -135,6 +135,7 @@ void regiestTypes()
     qRegisterMetaType<prismModelProxy<MLProject>*>("prismModelProxy<MLProject>*");
     qRegisterMetaType<prismModelListProxy<MLProject>*>("prismModelListProxy<MLProject>*");
     qRegisterMetaType<prismModelProxy<MLProjectImgNMSBox>*>("prismModelProxy<MLProjectImgNMSBox>*");
+    qRegisterMetaType<mainViewModel*>("mainViewModel*");
 
     qRegisterMetaType<bool*>("bool*");
     qRegisterMetaType<double*>("double*");

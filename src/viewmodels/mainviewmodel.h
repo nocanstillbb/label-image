@@ -21,6 +21,7 @@ class mainViewModel : public QObject
     Q_PROPERTY(prismModelListProxy<MLProjectModel>* modelList READ modelList WRITE setModelList NOTIFY modelListChanged)
     Q_PROPERTY(bool tabindex0reloadImages READ tabindex0reloadImages WRITE setTabindex0reloadImages NOTIFY tabindex0reloadImagesChanged)
     Q_PROPERTY(bool reloading READ reloading WRITE setReloading NOTIFY reloadingChanged)
+    Q_PROPERTY(bool removeAvoidProject READ removeAvoidProject WRITE setRemoveAvoidProject NOTIFY removeAvoidProjectChanged)
 
   private:
     prismModelProxy<App_config>* m_appConf = nullptr;
@@ -37,6 +38,8 @@ class mainViewModel : public QObject
     bool m_tabindex0reloadImages = false;
 
     bool m_reloading = true;
+
+    bool m_removeAvoidProject = false;
 
   public:
     explicit mainViewModel(QObject* parent = nullptr);
@@ -65,6 +68,9 @@ class mainViewModel : public QObject
     bool reloading() const;
     void setReloading(bool newReloading);
 
+    bool removeAvoidProject() const;
+    void setRemoveAvoidProject(bool newRemoveAvoidProject);
+
   signals:
 
     void appConfChanged();
@@ -85,6 +91,8 @@ class mainViewModel : public QObject
     void tabindex0reloadImagesChanged();
 
     void reloadingChanged();
+
+    void removeAvoidProjectChanged();
 
   public slots:
     void displayFirstImg();
