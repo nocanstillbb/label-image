@@ -249,6 +249,7 @@ Rectangle {
                                 onClicked: {
                                     if(!lv_train_imgs.currentRvm)
                                         return
+                                    lv_logModel.currentRvm = lv_logModel.model_models.getRowData(lv_logModel.currentIndex)
                                     if(!lv_logModel.currentRvm)
                                         return
                                     lableview_root.tab0_model_index = lv_logModel.currentIndex
@@ -292,6 +293,8 @@ Rectangle {
                                 onClicked: {
                                     if(!lv_train_imgs.currentRvm)
                                         return
+
+                                    lv_logModel.currentRvm = lv_logModel.model_models.getRowData(lv_logModel.currentIndex)
                                     if(!lv_logModel.currentRvm)
                                         return
                                     lableview_root.tab0_model_index = lv_logModel.currentIndex
@@ -444,6 +447,7 @@ Rectangle {
                                 }
 
                                 VideoCanvas{
+                                    id:videocanvas
                                     frameHeight:  renderer.fh
                                     frameWidth: renderer.fw
                                     roi_height: frameHeight
@@ -451,18 +455,44 @@ Rectangle {
                                     roi_x:  0
                                     roi_y:  0
                                     strokeColor: Bind.create(lv_labels.model_labels.getRowData(lv_labels.currentIndex),"color")??"red"
-                                  onDrawCompleted: function(x,y,w,h)
-                                  {
-                                      if(lv_labels.currentIndex <0)
-                                          return
-                                      if(w <10  && h < 10)
-                                          return
+                                                                                                                                  Keys.enabled: true
+                                    Keys.onReleased:function(e) {
+                                        if(e.key === Qt.Key_Left)
+                                        {
+                                            vm2.reloading = true
+                                            var previous = lv_train_imgs.currentIndex -1
+                                            if(previous > -1)
+                                            {
+                                                lv_train_imgs.currentIndex = previous
+                                                vm2.onclickImg(lv_train_imgs.trainImgs.getRowData(previous))
+                                            }
+                                            vm2.reloading = false
+                                        }
+                                        else if(e.key === Qt.Key_Right)
+                                        {
 
-                                      var imagePath = lv_train_imgs.currentRvm.get("fullPath")
-                                      vm.add_nms_box(rep_boxs.boxs_model,x,y,w,h,lv_labels.currentIndex,frameWidth,frameHeight,imagePath)
-                                      lv_current_image_boxs.currentIndex = lv_current_image_boxs.model_boxs.length()-1
-                                      vm.save_boxs(rep_boxs.boxs_model,imagePath,"txt")
-                                  }
+                                            vm2.reloading = true
+                                            var next = lv_train_imgs.currentIndex +1
+                                            if(next < lv_train_imgs.trainImgs.length())
+                                            {
+                                                lv_train_imgs.currentIndex = next
+                                                vm2.onclickImg(lv_train_imgs.trainImgs.getRowData(next))
+                                            }
+                                            vm2.reloading = false
+                                        }
+                                    }
+                                    onDrawCompleted: function(x,y,w,h)
+                                    {
+                                        if(lv_labels.currentIndex <0)
+                                            return
+                                        if(w <10  && h < 10)
+                                            return
+
+                                        var imagePath = lv_train_imgs.currentRvm.get("fullPath")
+                                        vm.add_nms_box(rep_boxs.boxs_model,x,y,w,h,lv_labels.currentIndex,frameWidth,frameHeight,imagePath)
+                                        lv_current_image_boxs.currentIndex = lv_current_image_boxs.model_boxs.length()-1
+                                        vm.save_boxs(rep_boxs.boxs_model,imagePath,"txt")
+                                    }
                                 }
 
                                 //nms boxs
@@ -710,6 +740,9 @@ Rectangle {
                                 id:tb_imaeg_path
                                 Layout.fillWidth: true
                                 text: Bind.create(lv_train_imgs.currentRvm, "fullPath")
+                                onTextChanged: {
+                                    videocanvas.forceActiveFocus()
+                                }
 
                             }
                         }
@@ -1143,6 +1176,7 @@ Rectangle {
                     policy: lv_train_imgs.contentWidth
                             > lv_train_imgs.width ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
                 }
+
 
                 delegate: Item {
                     width: lv_train_imgs.itemWidth

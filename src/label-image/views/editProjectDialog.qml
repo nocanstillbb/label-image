@@ -57,6 +57,7 @@ Rectangle {
             }
             Q1.SpinBox {
                 decimals: 0
+                width: 100
                 value: Bind.create(vm.editModel, "batchs")
                 onValueChanged: {
                     vm.editModel.set("batchs", value)
@@ -74,6 +75,7 @@ Rectangle {
             }
             Q1.SpinBox {
                 decimals: 0
+                width: 100
                 value: Bind.create(vm.editModel, "epochs")
                 onValueChanged: {
                     vm.editModel.set("epochs", value)

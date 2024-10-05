@@ -13,7 +13,7 @@ import Qt.labs.platform 1.1 as QtPlatform
 Item {
     property var proj: vm? vm.activeProject:null
     Q1.TabView {
-        enabled: !Bind.create(proj,"isbusy")
+        //enabled: !Bind.create(proj,"isbusy")
         id:tv
         currentIndex: vm.mainTabIndex
         onCurrentIndexChanged: {
