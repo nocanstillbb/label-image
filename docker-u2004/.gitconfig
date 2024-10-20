@@ -1,0 +1,45 @@
+[diff]
+	tool = vimdiff
+[merge]
+	tool=vimdiff
+[difftool]
+	prompt = false # 未保存时如果退出,不弹出出提示符
+	trustExitCode = true # 强制退出时,vim进程回返非0给bash
+[mergetool]
+	trustExitCode = true # 强制退出时,vim进程回返非0给bash
+[commit]
+    template=~/.gitmessage #commit 模板
+[core]
+	ignorecase = false
+	quotepath = false #git status中文路径显示为一串\123\321之类的魔法文字
+[pager]
+    branch = false
+[alias]
+    c = checkout 
+    s = status
+	d = difftool
+	m = mergetool
+	l = log --oneline --graph
+    lsm=!git log --oneline --graph -p --submodule --format='%h  [%ad]  %s  [by %an]%d' --decorate --date=iso |grep -E '^[*| /\\]+([a-z0-9]{7} |Submodule |> |< )'
+    frsm=  submodule foreach --recursive  
+    fsm=  submodule foreach 
+    diffsm=\
+        submodule foreach --recursive  \
+        'echo   "=============================================================================================" \
+        && pwd \
+        && echo "=============================================================================================" \
+        && (git l --decorate=short|head -n 5)\
+        && echo "=============================================================================================" \
+        && git diff '
+    ssm=\
+        submodule foreach --recursive  \
+        'echo   "=============================================================================================" \
+        && pwd \
+        && echo "=============================================================================================" \
+        && (git l --decorate=short|head -n 1)\
+        && echo "=============================================================================================" \
+        && git s '
+
+[user]
+    name = hbb_mac
+	email = kok.bing@qq.com

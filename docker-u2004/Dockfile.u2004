@@ -1,0 +1,44 @@
+FROM --platform=linux/amd64 ubuntu:20.04
+#FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY .gitconfig /root/.gitconfig
+COPY .vimrc /root/.vimrc
+
+RUN \
+apt update && \
+apt install -y  \
+build-essential \
+software-properties-common &&\
+apt update && \
+apt install -y locales language-pack-zh-hans language-pack-gnome-zh-hans fonts-wqy-zenhei fonts-wqy-microhei ibus-rime librime-data-wubi && sed -i.bak 's/# zh_CN.UTF-8/zh_CN.UTF-8/g' /etc/locale.gen && locale-gen && update-locale LANG=zh_CN.UTF-8 && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+apt install -y \
+  autoconf \
+  gnome \
+  automake \
+  bison \
+  build-essential \
+  cmake \
+  gcc \
+  g++ \
+  git \
+  lsb-release \
+  make \
+  ninja-build \
+  python3 \
+  rsync \
+  tar \
+  unzip \
+  vim \
+  wget \
+  curl \
+  cowsay && \
+  apt install -y openssh-server && echo 'root:aaa' | chpasswd && sed -i.bak 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config && service ssh restart  && \
+  apt clean && \
+  mkdir -p /opt/label-image
+
+COPY .config /root/.config
+
+WORKDIR  /opt/label-image
+ENTRYPOINT ["/bin/bash","-c" ,"service ssh start && tail -f /dev/null"]
+
